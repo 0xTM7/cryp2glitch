@@ -49,7 +49,7 @@ class strobject:
             stdout.write(ch)
             stdout.flush()
             sleep(delay)
-        strobject.info()
+        print()
 
     def info(msg):
         strobject.typewrite(f"{bold}{dim}{white}[{darkgreen}info +{white}] {msg}{reset}")
@@ -208,7 +208,7 @@ def Encrypt(InputPath, OutputPath):
     strobject.info(" Key derive : SHA3-512 x1337 rounds + random 32-byte salt")
     strobject.info(" Integrity  : SHA3-256 verified at runtime")
     strobject.info(" Obfuscation: fake vars + obfuscated prompt string + chunked payload")
-    strobject.info(" Salt       : {Salt.hex()[:32]}...")
+    strobject.info(f" Salt       : {Salt.hex()[:32]}...")
 
 
 def Decrypt(InputPath, OutputPath):
