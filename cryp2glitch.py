@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# author: 0xtom7
+# github: tom7voldemort
 
 import argparse
 import base64
@@ -7,6 +9,56 @@ import os
 import sys
 import hashlib
 import random
+from sys import stdout
+from time import sleep
+
+reset = "\033[0m"
+red = "\033[31m"
+darkgreen = "\033[38;5;22m"
+orange = "\033[38;5;208m"
+blue = "\033[34m"
+magenta = "\033[35m"
+cyan = "\033[36m"
+white = "\033[37m"
+bold = "\033[1m"
+dim = "\033[2m"
+italic = "\033[3m"
+underline = "\033[4m"
+blink = "\033[5m"
+
+banner = f"""
+{darkgreen}                        {red}___{darkgreen}         ___ __       __  
+{darkgreen}  ____________  ______ {red}|__ \\{darkgreen} ____ _/ (_) /______/ /_ 
+{darkgreen} / ___/ ___/ / / / __ \\{red}__/ /{darkgreen}/ __ `/ / / __/ ___/ __ \\
+{darkgreen}/ /__/ /  / /_/ / /_/ /{red} __/{darkgreen}/ /_/ / / / /_/ /__/ / / /
+{darkgreen}\\___/_/   \\__, / .___/{red}____/{darkgreen}\\__, /_/_/\\__/\\___/_/ /_/ 
+{darkgreen}         /____/_/         /____/                     
+{bold}{red}  + {dim}{white}{italic}cryp2glitch{reset}
+{bold}{red}  + {dim}{white}{italic}author: tom7{reset}
+{bold}{red}  + {dim}{white}{italic}github: https://github.com/tom7voldemort{reset}
+{bold}{red}  + {dim}{white}{italic}version: 1.0{reset}
+{reset}
+"""
+
+class strobject:
+    def clear():
+        os.system("cls" if os.name == "nt" else "clear")
+        
+    def typewrite(msg, delay=0.01):
+        for ch in msg:
+            stdout.write(ch)
+            stdout.flush()
+            sleep(delay)
+        strobject.info()
+
+    def info(msg):
+        strobject.typewrite(f"{bold}{dim}{white}[{darkgreen}info +{white}] {msg}{reset}")
+
+    def warnings(msg):
+        strobject.typewrite(f"{bold}{dim}{white}[{orange}warn !{white}] {msg}{reset}")
+
+    def errors(msg):
+        strobject.typewrite(f"{bold}{dim}{white}[{red}error x{white}] {msg}{reset}")
 
 
 LOADER = (
@@ -106,7 +158,7 @@ def BuildFakeVars():
 
 def Encrypt(InputPath, OutputPath):
     if not os.path.exists(InputPath):
-        print(f"[!] File not found: {InputPath}")
+        strobject.info(f" File not found: {InputPath}")
         sys.exit(1)
         
     with open(InputPath, 'rb') as f:
@@ -115,16 +167,16 @@ def Encrypt(InputPath, OutputPath):
     try:
         compile(Raw, InputPath, 'exec')
     except SyntaxError as e:
-        print(f"[!] Syntax error in source: {e}")
+        strobject.info(f" Syntax error in source: {e}")
         sys.exit(1)
 
     Checksum = hashlib.sha3_256(Raw).digest()
     Salt     = os.urandom(32)
-    Password = input("[*] Set encryption password: ").encode()
-    Confirm  = input("[*] Confirm password: ").encode()
+    Password = input(" Set encryption password: ").encode()
+    Confirm  = input(" Confirm password: ").encode()
 
     if Password != Confirm:
-        print("[!] Passwords do not match.")
+        strobject.info(" Passwords do not match.")
         sys.exit(1)
 
     Key = DeriveKey(Salt + Password)
@@ -135,7 +187,7 @@ def Encrypt(InputPath, OutputPath):
     ChunkLiterals = repr([base64.b64encode(c).decode() for c in Chunks])
     SaltLit = repr(base64.b64encode(Salt).decode())
     CheckLit = repr(base64.b64encode(Checksum).decode())
-    ObfKey = repr(ObfuscateString("[*] Password"))
+    ObfKey = repr(ObfuscateString(" Password"))
 
     Output = (LOADER
         .replace("{FAKE}",   BuildFakeVars())
@@ -148,20 +200,20 @@ def Encrypt(InputPath, OutputPath):
     with open(OutputPath, 'w') as f:
         f.write(Output)
 
-    print(f"\n[+] Encrypted  : {InputPath}")
-    print(f"[+] Output     : {OutputPath}")
-    print(f"[+] Original   : {len(Raw)} bytes")
-    print(f"[+] Protected  : {len(Output.encode())} bytes")
-    print("[+] Layers     : zlib → XOR stream cipher → byte shuffle → chunk split")
-    print("[+] Key derive : SHA3-512 x1337 rounds + random 32-byte salt")
-    print("[+] Integrity  : SHA3-256 verified at runtime")
-    print("[+] Obfuscation: fake vars + obfuscated prompt string + chunked payload")
-    print("[+] Salt       : {Salt.hex()[:32]}...")
+    strobject.info(f"\n Encrypted  : {InputPath}")
+    strobject.info(f" Output     : {OutputPath}")
+    strobject.info(f" Original   : {len(Raw)} bytes")
+    strobject.info(f" Protected  : {len(Output.encode())} bytes")
+    strobject.info(" Layers     : zlib → XOR stream cipher → byte shuffle → chunk split")
+    strobject.info(" Key derive : SHA3-512 x1337 rounds + random 32-byte salt")
+    strobject.info(" Integrity  : SHA3-256 verified at runtime")
+    strobject.info(" Obfuscation: fake vars + obfuscated prompt string + chunked payload")
+    strobject.info(" Salt       : {Salt.hex()[:32]}...")
 
 
 def Decrypt(InputPath, OutputPath):
     if not os.path.exists(InputPath):
-        print(f"[!] File not found: {InputPath}")
+        strobject.info(f" File not found: {InputPath}")
         sys.exit(1)
 
     with open(InputPath, 'r') as f:
@@ -185,32 +237,32 @@ def Decrypt(InputPath, OutputPath):
                 continue
 
     if FoundSalt is None:
-        print("[!] Could not parse encrypted file. Was it made with this tool?")
+        strobject.info(" Could not parse encrypted file. Was it made with this tool?")
         sys.exit(1)
 
-    Password = input("[*] Enter decryption password: ").encode()
-    Key      = DeriveKey(FoundSalt + Password)
-    Raw      = b''.join(FoundChunks)
-    Raw      = Unshuffle(Raw, Key)
-    Raw      = XorStream(Raw, Key)
+    Password = input(" Enter decryption password: ").encode()
+    Key = DeriveKey(FoundSalt + Password)
+    Raw = b''.join(FoundChunks)
+    Raw = Unshuffle(Raw, Key)
+    Raw = XorStream(Raw, Key)
 
     try:
         Raw = zlib.decompress(Raw)
     except zlib.error:
-        print("[!] Decryption failed — wrong password or corrupted file.")
+        strobject.info(" Decryption failed — wrong password or corrupted file.")
         sys.exit(1)
 
     if hashlib.sha3_256(Raw).digest() != FoundCheck:
-        print("[!] Integrity check failed — wrong password or corrupted file.")
+        strobject.info(" Integrity check failed — wrong password or corrupted file.")
         sys.exit(1)
 
     with open(OutputPath, 'wb') as f:
         f.write(Raw)
 
-    print(f"\n[+] Decrypted  : {InputPath}")
-    print(f"[+] Output     : {OutputPath}")
-    print(f"[+] Recovered  : {len(Raw)} bytes")
-    print(f"[+] Integrity  : OK")
+    strobject.info(f"\n Decrypted  : {InputPath}")
+    strobject.info(f" Output     : {OutputPath}")
+    strobject.info(f" Recovered  : {len(Raw)} bytes")
+    strobject.info(" Integrity  : OK")
 
 
 def Main():
@@ -242,4 +294,5 @@ def Main():
 
 
 if __name__ == "__main__":
+    print(banner)
     Main()
