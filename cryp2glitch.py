@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-# author: 0xtom7
-# github: tom7voldemort
+# author: 0xTM7
+# github: 0xTM7
 
 import argparse
 import base64
@@ -34,8 +34,8 @@ banner = f"""
 {darkgreen}\\___/_/   \\__, / .___/{red}____/{darkgreen}\\__, /_/_/\\__/\\___/_/ /_/ 
 {darkgreen}         /____/_/         /____/                     
 {bold}{red}  + {dim}{white}{italic}cryp2glitch{reset}
-{bold}{red}  + {dim}{white}{italic}author: tom7{reset}
-{bold}{red}  + {dim}{white}{italic}github: https://github.com/tom7voldemort{reset}
+{bold}{red}  + {dim}{white}{italic}author: 0xTM7{reset}
+{bold}{red}  + {dim}{white}{italic}github: https://github.com/0xTM7{reset}
 {bold}{red}  + {dim}{white}{italic}version: 1.0{reset}
 {reset}
 """
